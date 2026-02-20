@@ -1,9 +1,31 @@
 import asyncHandler from "express-async-handler";
 import { type Request, type Response, type NextFunction } from "express";
+import { User } from "../models/userModel.js";
+import { ApiError } from "../utils/ApiError.js";
 
 const register = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    res.send("register");
+    const { name, email, password } = req.body;
+
+    //check validation
+    if (!name || !email || !password) {
+      throw new ApiError(400, "all field are required");
+    }
+
+    //check user exist
+    const userExist = await User.findOne({ email });
+
+    if (userExist) {
+      throw new ApiError(400, "this email has already been in use");
+    }
+
+    const user = await User.create({
+      name,
+      email,
+      password,
+    });
+
+    res.status(201).json({ message: "register successfully!" });
   },
 );
 
