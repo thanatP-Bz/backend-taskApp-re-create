@@ -13,7 +13,7 @@ const register = asyncHandler(
     }
 
     //check user exist
-    const userExist = await User.findOne({ email });
+    const userExist = await User.findByEmail(email);
 
     if (userExist) {
       throw new ApiError(400, "this email has already been in use");
@@ -25,13 +25,45 @@ const register = asyncHandler(
       password,
     });
 
-    res.status(201).json({ message: "register successfully!" });
+    res.status(201).json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+      message: "register successfully!",
+    });
+
+    next();
   },
 );
 
 const login = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    res.send("login");
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      throw new ApiError(400, "all filed are required");
+    }
+
+    //check user exist
+    const user = await User.findByEmail(email);
+
+    if (!user) {
+      throw new ApiError(400, "user not found");
+    }
+
+    //compare password
+    const match = await user.comparePassword(password);
+    if (!match) {
+      throw new ApiError(401, "invalid credential");
+    }
+
+    res.status(200).json({
+      user: user.name,
+      email: user.email,
+      message: "login successfully!",
+    });
   },
 );
 

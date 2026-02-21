@@ -8,4 +8,5 @@ export interface IUser {
 
 export interface IDocument extends IUser, Document {
   _id: Types.ObjectId;
+  comparePassword(password: string): Promise<boolean>;
 }
