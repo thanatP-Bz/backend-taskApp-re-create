@@ -1,7 +1,10 @@
 import asyncHandler from "express-async-handler";
 import { type Request, type Response, type NextFunction } from "express";
 import { User } from "../models/userModel.js";
-import { ApiError } from "../utils/ApiError.js";
+import { ApiError } from "../utils/error/ApiError.js";
+import { generateVerificationToken } from "../utils/token/generateVerificationToken.js";
+import { verificationEmailTemplate } from "../utils/email/emailTemplate.js";
+import { sendEmail } from "../utils/email/sendEmail.js";
 
 const register = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -13,16 +16,30 @@ const register = asyncHandler(
     }
 
     //check user exist
-    const userExist = await User.findByEmail(email);
+    const userExist = await User.findEmail(email);
 
     if (userExist) {
       throw new ApiError(400, "this email has already been in use");
     }
 
+    //generate Token for verification
+    const verificationToken = generateVerificationToken();
+    const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
     const user = await User.create({
       name,
       email,
       password,
+      isVerified: false,
+      verificationToken,
+      verificationTokenExpires,
+    });
+
+    //send verification email
+    const emailTemplates = verificationEmailTemplate(email, verificationToken);
+    await sendEmail({
+      to: email,
+      ...emailTemplates,
     });
 
     res.status(201).json({
@@ -31,10 +48,9 @@ const register = asyncHandler(
         name: user.name,
         email: user.email,
       },
-      message: "register successfully!",
+      message:
+        "register successfully! Please check your email to verify your account",
     });
-
-    next();
   },
 );
 
@@ -47,7 +63,7 @@ const login = asyncHandler(
     }
 
     //check user exist
-    const user = await User.findByEmail(email);
+    const user = await User.findEmail(email);
 
     if (!user) {
       throw new ApiError(400, "user not found");
@@ -64,18 +80,6 @@ const login = asyncHandler(
       email: user.email,
       message: "login successfully!",
     });
-  },
-);
-
-const verifyEmail = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
-    res.send("verifyEmail");
-  },
-);
-
-const resendEmail = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
-    res.send("resendEmail");
   },
 );
 
@@ -106,8 +110,6 @@ const logout = asyncHandler(
 export {
   register,
   login,
-  verifyEmail,
-  resendEmail,
   forgetPassword,
   resetPassword,
   changePassword,

@@ -1,8 +1,7 @@
-import dotenv from "dotenv";
-dotenv.config();
+import "dotenv/config";
 import express, { type Request, type Response } from "express";
 import connectDB from "./config/connectDB.js";
-import { errorHandler } from "./middleware/errorHandler.js";
+import { errorHandler } from "./middleware/error/errorHandler.js";
 import authRoutes from "./routes/authRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
 

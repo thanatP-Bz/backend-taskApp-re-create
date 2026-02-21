@@ -3,14 +3,18 @@ import { type IDocument, type IUser } from "../types/user.js";
 import bcrypt from "bcrypt";
 
 export interface UserModel extends Model<IUser> {
-  findByEmail: (password: string) => Promise<IDocument>;
+  findEmail: (password: string) => Promise<IDocument>;
 }
 
 const userSchema = new Schema<IDocument>(
   {
     name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true, lowercase: true },
     password: { type: String, required: true },
+
+    isVerified: { type: Boolean, default: false }, //set default to false
+    verificationToken: { type: String },
+    verificationTokenExpires: { type: Date },
   },
   { timestamps: true },
 );
@@ -31,7 +35,7 @@ userSchema.methods.comparePassword = async function (password: string) {
 };
 
 //find by email
-userSchema.statics.findByEmail = async function (email: string) {
+userSchema.statics.findEmail = async function (email: string) {
   return await this.findOne({ email });
 };
 
