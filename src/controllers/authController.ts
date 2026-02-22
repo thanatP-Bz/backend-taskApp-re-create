@@ -36,7 +36,10 @@ const register = asyncHandler(
     });
 
     //send verification email
-    const emailTemplates = verificationEmailTemplate(email, verificationToken);
+    const emailTemplates = verificationEmailTemplate(
+      verificationToken,
+      user.email,
+    );
     await sendEmail({
       to: email,
       ...emailTemplates,
