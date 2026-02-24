@@ -5,6 +5,7 @@ import { ApiError } from "../utils/error/ApiError.js";
 import { generateVerificationToken } from "../utils/token/generateVerificationToken.js";
 import { verificationEmailTemplate } from "../utils/email/emailTemplate.js";
 import { sendEmail } from "../utils/email/sendEmail.js";
+import { generateAccessToken } from "../utils/token/genenrateJWTtoken.js";
 
 const register = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -78,10 +79,14 @@ const login = asyncHandler(
       throw new ApiError(401, "invalid credential");
     }
 
+    //generate access token
+    const accessToken = generateAccessToken(user._id.toString());
+
     res.status(200).json({
       user: user.name,
       email: user.email,
       message: "login successfully!",
+      accessToken,
     });
   },
 );

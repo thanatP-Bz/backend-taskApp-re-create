@@ -1,7 +1,7 @@
 import { IUserDocument } from "./user.ts";
 
 declare global {
-  namespace express {
+  namespace Express {
     interface Request {
       user?: IUserDocument | null;
     }
