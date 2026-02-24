@@ -19,7 +19,7 @@ router.post("/login", login);
 router.get("/verify-email", verificationEmail);
 router.post("/resend-email", resendEmail);
 router.post("/forget-password", forgetPassword);
-router.post("/reset-password/:token", resetPassword); //do not forget token
+router.post("/reset-password", resetPassword);
 router.patch("/change-password", changePassword);
 router.post("/logout", logout);
 

@@ -5,7 +5,7 @@ export const verificationEmailTemplate = (
   verificationToken: string,
   userName?: string,
 ): { subject: string; html: string; text: string } => {
-  const verificationUrl = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${verificationToken}`;
+  const verificationUrl = `${process.env.FRONTEND_URL}/api/auth/verify-email?token=${verificationToken}`;
 
   return {
     subject: "Verify Your Email",
@@ -40,7 +40,7 @@ export const resendVerificationEmailTemplate = (
   verificationToken: string,
   userName?: string,
 ): { subject: string; html: string; text: string } => {
-  const verificationUrl = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${verificationToken}`;
+  const verificationUrl = `${process.env.FRONTEND_URL}/api/auth/verify-email?token=${verificationToken}`;
 
   return {
     subject: "Verify Your Email - New Link",
@@ -75,7 +75,7 @@ export const passwordResetEmailTemplate = (
   resetToken: string,
   userName?: string,
 ): { subject: string; html: string; text: string } => {
-  const resetUrl = `${process.env.BACKEND_URL}/api/auth/reset-password?token=${resetToken}`;
+  const resetUrl = `${process.env.FRONTEND_URL}/api/auth/reset-password?token=${resetToken}`;
 
   return {
     subject: "Reset Your Password",

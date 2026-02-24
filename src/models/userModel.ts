@@ -15,7 +15,11 @@ const userSchema = new Schema<IDocument>(
     isVerified: { type: Boolean, default: false }, //set default to false
     verificationToken: { type: String },
     verificationTokenExpires: { type: Date },
+
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
   },
+
   { timestamps: true },
 );
 

@@ -25,8 +25,8 @@ const verificationEmail = asyncHandler(async (req: Request, res: Response) => {
 
   //update user
   user.isVerified = true;
-  user.verificationToken = undefined;
-  user.verificationTokenExpires = undefined;
+  user.verificationToken = null;
+  user.verificationTokenExpires = null;
   await user.save();
 
   res
@@ -89,8 +89,8 @@ const resendEmail = asyncHandler(
       });
     } catch (error) {
       // Rollback token if email fails
-      user.verificationToken = undefined;
-      user.verificationTokenExpires = undefined;
+      user.verificationToken = null;
+      user.verificationTokenExpires = null;
       await user.save();
 
       throw new ApiError(500, "Failed to send email. Please try again.");

@@ -7,8 +7,14 @@ export interface IUser {
 
   //verify email
   isVerified: boolean;
-  verificationToken: string | undefined;
-  verificationTokenExpires: Date | undefined;
+  verificationToken: string | null;
+  verificationTokenExpires: Date | null;
+
+  //reset password
+  resetPasswordToken?: string | null;
+  resetPasswordExpires?: Date | null;
+
+  //time stamp
   createdAt: Date;
   updatedAt: Date;
 }
