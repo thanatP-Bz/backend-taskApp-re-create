@@ -5,6 +5,7 @@ import { ApiError } from "../utils/error/ApiError.js";
 import { generateVerificationToken } from "../utils/token/generateVerificationToken.js";
 import {
   passwordResetEmailTemplate,
+  passwordResetSuccessTemplate,
   verificationEmailTemplate,
 } from "../utils/email/emailTemplate.js";
 import { sendEmail } from "../utils/email/sendEmail.js";
@@ -108,19 +109,24 @@ const forgetPassword = asyncHandler(
       throw new ApiError(404, "No account found with this email");
     }
 
+    //cookdown
+    if (
+      user.resetPasswordExpires &&
+      user.resetPasswordExpires.getTime() > Date.now()
+    ) {
+      throw new ApiError(
+        400,
+        "Reset email already sent. Please check your inbox.",
+      );
+    }
+
     //generate token and Store token + expiry
     const { resetToken, hashedResetToken } = generateResetToken();
 
-    console.log("✅ Generated plain token:", resetToken);
-    console.log("✅ Generated hashed token:", hashedResetToken);
-
     user.resetPasswordToken = hashedResetToken;
-    user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000);
+    user.resetPasswordExpires = new Date(Date.now() + 2 * 60 * 1000);
 
     await user.save();
-
-    console.log("✅ Saved to DB - hashed token:", user.resetPasswordToken);
-    console.log("✅ Saved to DB - expires:", user.resetPasswordExpires);
 
     try {
       const emailTemplates = passwordResetEmailTemplate(resetToken, user.name);
@@ -145,9 +151,6 @@ const resetPassword = asyncHandler(
     const { token } = req.query;
     const { newPassword } = req.body;
 
-    console.log("🔍 Received token from URL:", token);
-    console.log("🔍 Token type:", typeof token);
-
     // Validate token
     if (!token || typeof token !== "string") {
       throw new ApiError(400, "Invalid reset token");
@@ -159,22 +162,6 @@ const resetPassword = asyncHandler(
     }
 
     const updatedUpdatedResetToken = hashedUpdateResetToken(token);
-    console.log("🔍 Hashed incoming token:", updatedUpdatedResetToken);
-
-    const userAny = await User.findOne({
-      resetPasswordToken: updatedUpdatedResetToken,
-    });
-    console.log("🔍 User found (no expiry check)?", !!userAny);
-
-    if (userAny) {
-      console.log("🔍 DB token:", userAny.resetPasswordToken);
-      console.log(
-        "🔍 Tokens match?",
-        userAny.resetPasswordToken === updatedUpdatedResetToken,
-      );
-      console.log("🔍 Expires at:", userAny.resetPasswordExpires);
-      console.log("🔍 Now:", new Date());
-    }
 
     // Find user with valid token
     const user = await User.findOne({
@@ -191,6 +178,18 @@ const resetPassword = asyncHandler(
     user.resetPasswordToken = null;
     user.resetPasswordExpires = null;
     await user.save();
+
+    // ✅ Send confirmation email
+    try {
+      const emailTemplate = passwordResetSuccessTemplate(user.name);
+      await sendEmail({
+        to: user.email,
+        ...emailTemplate,
+      });
+    } catch (error) {
+      console.error("Failed to send confirmation email:", error);
+      // Don't throw error - password was already reset successfully
+    }
 
     res.status(200).json({
       message: "Password reset successful. You can now log in.",

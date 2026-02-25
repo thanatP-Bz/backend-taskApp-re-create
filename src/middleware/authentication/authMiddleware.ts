@@ -25,8 +25,6 @@ export const authenticate = async (
       throw new ApiError(401, "Invalid token playload");
     }
 
-    console.log(decoded);
-
     const user = await User.findById(decoded._id).select("-password");
 
     if (!user) {
