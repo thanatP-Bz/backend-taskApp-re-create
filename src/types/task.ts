@@ -3,6 +3,6 @@ import { Types } from "mongoose";
 export interface ITask {
   title: string;
   description: string;
-  completed: boolean;
+  isCompleted: boolean;
   user: Types.ObjectId;
 }

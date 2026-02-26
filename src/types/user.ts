@@ -19,7 +19,7 @@ export interface IUser {
   updatedAt: Date;
 }
 
-export interface IDocument extends IUser, Document {
+export interface IUserDocument extends IUser, Document {
   _id: Types.ObjectId;
   comparePassword(password: string): Promise<boolean>;
 }

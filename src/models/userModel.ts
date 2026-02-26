@@ -1,12 +1,12 @@
 import { model, Schema, Model } from "mongoose";
-import { type IDocument, type IUser } from "../types/user.js";
+import { type IUserDocument, type IUser } from "../types/user.js";
 import bcrypt from "bcrypt";
 
 export interface UserModel extends Model<IUser> {
-  findEmail: (password: string) => Promise<IDocument>;
+  findEmail: (password: string) => Promise<IUserDocument>;
 }
 
-const userSchema = new Schema<IDocument>(
+const userSchema = new Schema<IUserDocument>(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true, lowercase: true },
@@ -43,4 +43,4 @@ userSchema.statics.findEmail = async function (email: string) {
   return await this.findOne({ email });
 };
 
-export const User = model<IDocument, UserModel>("User", userSchema);
+export const User = model<IUserDocument, UserModel>("User", userSchema);

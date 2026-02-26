@@ -230,7 +230,7 @@ const changePassword = asyncHandler(
 
 const logout = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    res.send("logout");
+    res.status(200).json({ message: "Logged out successfully" });
   },
 );
 
