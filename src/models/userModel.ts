@@ -2,7 +2,7 @@ import { model, Schema, Model } from "mongoose";
 import { type IUserDocument, type IUser } from "../types/user.js";
 import bcrypt from "bcrypt";
 
-export interface UserModel extends Model<IUser> {
+export interface UserModel extends Model<IUserDocument> {
   findEmail: (password: string) => Promise<IUserDocument>;
 }
 
