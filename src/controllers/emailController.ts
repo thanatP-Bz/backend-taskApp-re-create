@@ -56,7 +56,7 @@ const resendEmail = asyncHandler(
     }
 
     // Cooldown check - prevent spam
-    /*  if (
+    if (
       user.verificationTokenExpires &&
       user.verificationTokenExpires.getTime() > Date.now()
     ) {
@@ -67,7 +67,7 @@ const resendEmail = asyncHandler(
         429,
         `Please wait ${minutesLeft} minute(s) before requesting a new verification email`,
       );
-    } */
+    }
 
     // Generate new token
     const verificationToken = generateVerificationToken();

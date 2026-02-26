@@ -14,6 +14,7 @@ import {
   generateResetToken,
   hashedUpdateResetToken,
 } from "../utils/token/generateCryptoToken.js";
+import bcrypt from "bcrypt";
 
 const register = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -199,7 +200,31 @@ const resetPassword = asyncHandler(
 
 const changePassword = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    res.send("changePassword");
+    const { email, oldPassword, newPassword } = req.body;
+
+    const user = await User.findEmail(email);
+
+    if (!user) {
+      throw new ApiError(404, "User not Found");
+    }
+
+    //check old password match
+    const match = await bcrypt.compare(oldPassword, user.password);
+    if (!match) {
+      throw new ApiError(400, "Password does not match");
+    }
+
+    if (oldPassword === newPassword) {
+      throw new ApiError(
+        400,
+        "New password must be different from the old password",
+      );
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password change successfully" });
   },
 );
 
