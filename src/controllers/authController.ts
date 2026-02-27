@@ -2,19 +2,20 @@ import asyncHandler from "express-async-handler";
 import { type Request, type Response, type NextFunction } from "express";
 import { User } from "../models/userModel.js";
 import { ApiError } from "../utils/error/ApiError.js";
-import { generateVerificationToken } from "../utils/token/generateVerificationToken.js";
+import { generateVerificationToken } from "../utils/token/crypto/verificationToken.js";
 import {
   passwordResetEmailTemplate,
   passwordResetSuccessTemplate,
   verificationEmailTemplate,
 } from "../utils/email/emailTemplate.js";
 import { sendEmail } from "../utils/email/sendEmail.js";
-import { generateAccessToken } from "../utils/token/genenrateJWTtoken.js";
+import { generateAccessToken } from "../utils/token/JWT/accessToken.js";
 import {
   generateResetToken,
   hashedUpdateResetToken,
-} from "../utils/token/generateCryptoToken.js";
+} from "../utils/token/crypto/resetToken.js";
 import bcrypt from "bcrypt";
+import { generateRefreshToken } from "../utils/token/JWT/refreshToken.js";
 
 const register = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -90,12 +91,20 @@ const login = asyncHandler(
 
     //generate access token
     const accessToken = generateAccessToken(user._id.toString());
+    const refreshToken = generateRefreshToken(user._id.toString());
+
+    user.refreshToken = refreshToken;
+    user.refreshTokenExpires = user.refreshTokenExpires = new Date(
+      Date.now() + 7 * 24 * 60 * 60 * 1000,
+    );
+    user.save();
 
     res.status(200).json({
       user: user.name,
       email: user.email,
       message: "login successfully!",
       accessToken,
+      refreshToken,
     });
   },
 );

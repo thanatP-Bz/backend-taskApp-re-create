@@ -14,6 +14,10 @@ export interface IUser {
   resetPasswordToken?: string | null;
   resetPasswordExpires?: Date | null;
 
+  //refreshToken
+  refreshToken: string | null;
+  refreshTokenExpires: Date | null;
+
   //time stamp
   createdAt: Date;
   updatedAt: Date;

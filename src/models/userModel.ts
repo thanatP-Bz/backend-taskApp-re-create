@@ -18,6 +18,9 @@ const userSchema = new Schema<IUserDocument>(
 
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
+
+    refreshToken: { type: String },
+    refreshTokenExpires: { type: Date },
   },
 
   { timestamps: true },

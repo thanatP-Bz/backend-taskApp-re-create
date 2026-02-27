@@ -4,6 +4,7 @@ import connectDB from "./config/connectDB.js";
 import { errorHandler } from "./middleware/error/errorHandler.js";
 import authRoutes from "./routes/authRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
+import refreshTokenRoute from "./routes/refreshTokenRoute.js";
 
 const app = express();
 app.use(express.json());
@@ -11,6 +12,7 @@ app.use(express.json());
 //routes
 app.use("/api/auth", authRoutes);
 app.use("/api/task", taskRoutes);
+app.use("/api/token", refreshTokenRoute);
 
 app.get("/", (req: Request, res: Response) => {
   res.json("connect to backend");

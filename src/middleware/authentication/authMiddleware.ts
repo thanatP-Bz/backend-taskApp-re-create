@@ -1,7 +1,8 @@
-import JWT, { type JwtPayload } from "jsonwebtoken";
+import { type JwtPayload } from "jsonwebtoken";
 import { ApiError } from "../../utils/error/ApiError.js";
 import { type Request, type Response, type NextFunction } from "express";
 import { User } from "../../models/userModel.js";
+import { verifiedAccessToken } from "../../utils/token/JWT/accessToken.js";
 
 export const authenticate = async (
   req: Request,
@@ -16,10 +17,7 @@ export const authenticate = async (
   }
 
   try {
-    const decoded = JWT.verify(
-      token,
-      process.env.JWT_ACCESS_SECRET!,
-    ) as JwtPayload;
+    const decoded = verifiedAccessToken(token) as JwtPayload;
 
     if (!decoded._id) {
       throw new ApiError(401, "Invalid token playload");
