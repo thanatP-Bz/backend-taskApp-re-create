@@ -5,6 +5,7 @@ import { errorHandler } from "./middleware/error/errorHandler.js";
 import authRoutes from "./routes/authRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
 import refreshTokenRoute from "./routes/refreshTokenRoute.js";
+import redis from "./config/connectRedis.js";
 
 const app = express();
 app.use(express.json());
@@ -25,7 +26,12 @@ const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI as string;
 
 const serverStart = async () => {
+  //connect to DB
   await connectDB(MONGODB_URI);
+
+  //connect to Redis
+  await redis.connect();
+
   app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);
   });

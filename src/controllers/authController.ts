@@ -16,6 +16,7 @@ import {
 } from "../utils/token/crypto/resetToken.js";
 import bcrypt from "bcrypt";
 import { generateRefreshToken } from "../utils/token/JWT/refreshToken.js";
+import { createSession } from "./redisSessionController.js";
 
 const register = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -89,6 +90,14 @@ const login = asyncHandler(
       throw new ApiError(401, "invalid credential");
     }
 
+    //generate session id
+    //generate session id
+    const sessionId = await createSession({
+      userId: user._id,
+      ipAddress: req.ip!,
+      userAgent: req.headers["user-agent"] || "unknown",
+    });
+
     //generate access token
     const accessToken = generateAccessToken(user._id.toString());
     const refreshToken = generateRefreshToken(user._id.toString());
@@ -105,6 +114,7 @@ const login = asyncHandler(
       message: "login successfully!",
       accessToken,
       refreshToken,
+      sessionId,
     });
   },
 );
