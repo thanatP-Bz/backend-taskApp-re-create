@@ -11,6 +11,7 @@ import {
   verificationEmail,
   resendEmail,
 } from "../controllers/emailController.js";
+import { googleCallback } from "../controllers/oauthController.js";
 
 const router = express.Router();
 
@@ -22,5 +23,8 @@ router.post("/forget-password", forgetPassword);
 router.post("/reset-password", resetPassword);
 router.patch("/change-password", changePassword);
 router.post("/logout", logout);
+
+//oauth token route
+router.post("/google", googleCallback);
 
 export default router;

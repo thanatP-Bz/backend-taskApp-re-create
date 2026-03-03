@@ -11,6 +11,7 @@
     "module": "NodeNext",
     "target": "esnext",
     "types": [],
+    "typeRoots": ["./node_modules/@types", "./src/types"],
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
@@ -41,5 +42,6 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true
-  }
+  },
+  "include": ["src/**/*"]
 }

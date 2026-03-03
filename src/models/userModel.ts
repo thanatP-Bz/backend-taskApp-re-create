@@ -10,7 +10,13 @@ const userSchema = new Schema<IUserDocument>(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true, lowercase: true },
-    password: { type: String, required: true },
+    password: {
+      type: String,
+      required: function (this: IUserDocument) {
+        // Password is only required if user doesn't have a googleId
+        return !this.googleId;
+      },
+    },
 
     isVerified: { type: Boolean, default: false }, //set default to false
     verificationToken: { type: String },
@@ -21,6 +27,9 @@ const userSchema = new Schema<IUserDocument>(
 
     refreshToken: { type: String },
     refreshTokenExpires: { type: Date },
+
+    googleId: { type: String },
+    authProvider: { type: String, enum: ["local", "google"], default: "local" },
   },
 
   { timestamps: true },

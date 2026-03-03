@@ -18,6 +18,10 @@ export interface IUser {
   refreshToken: string | null;
   refreshTokenExpires: Date | null;
 
+  //google oauth
+  googleId?: string;
+  authProvider: "local" | "google";
+
   //time stamp
   createdAt: Date;
   updatedAt: Date;
