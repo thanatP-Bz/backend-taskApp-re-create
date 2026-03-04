@@ -1,14 +1,5 @@
 import { Redis } from "ioredis";
 
-console.log(
-  "🔍 REDIS_URL from env:",
-  process.env.REDIS_URL ? "EXISTS" : "MISSING",
-);
-console.log(
-  "🔍 REDIS_URL value:",
-  process.env.REDIS_URL?.substring(0, 30) + "...",
-);
-
 // If REDIS_URL exists (production), use it with TLS config
 if (process.env.REDIS_URL) {
   console.log("✅ Using REDIS_URL for connection");

@@ -27,7 +27,7 @@ export const createSession = async (
   };
   //store in Redis
   const expirationSeconds = 7 * 24 * 60 * 60;
-  await redis.setEx(sessionKey, expirationSeconds, JSON.stringify(sessionData));
+  await redis.setex(sessionKey, expirationSeconds, JSON.stringify(sessionData));
 
   return sessionId;
 };
@@ -73,7 +73,7 @@ export const updateSessionActivity = async (
   //get remain time to live ttl
   const ttl = await redis.ttl(sessionKey);
 
-  await redis.setEx(sessionKey, ttl, JSON.stringify(sessionData));
+  await redis.setex(sessionKey, ttl, JSON.stringify(sessionData));
 };
 
 //get all active sessions for a user (for UI)
