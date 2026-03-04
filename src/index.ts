@@ -33,9 +33,6 @@ const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI as string;
 
 const serverStart = async () => {
-  //connect to Redis
-  await redis.connect();
-
   //connect to DB
   await connectDB(MONGO_URI);
 

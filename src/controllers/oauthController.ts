@@ -29,6 +29,8 @@ export const googleCallback = async (req: Request, res: Response) => {
       userAgent: req.headers["user-agent"] || "unknown",
     });
 
+    console.log("test");
+
     return res.json({
       success: true,
       accessToken,
