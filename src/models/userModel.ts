@@ -30,6 +30,10 @@ const userSchema = new Schema<IUserDocument>(
 
     googleId: { type: String },
     authProvider: { type: String, enum: ["local", "google"], default: "local" },
+
+    twoFactorSecret: { type: String },
+    twoFactorEnabled: { type: Boolean, default: false },
+    backupCodes: [{ type: String }],
   },
 
   { timestamps: true },

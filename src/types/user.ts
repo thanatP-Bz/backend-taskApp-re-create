@@ -22,6 +22,11 @@ export interface IUser {
   googleId?: string;
   authProvider: "local" | "google";
 
+  //2FA
+  twoFactorSecret?: string | undefined;
+  twoFactorEnabled: boolean;
+  backupCodes?: [] | undefined;
+
   //time stamp
   createdAt: Date;
   updatedAt: Date;
