@@ -36,6 +36,19 @@ const serverStart = async () => {
   //connect to DB
   await connectDB(MONGO_URI);
 
+  // Redis connection (ioredis connects automatically)
+  redis.on("connect", () => {
+    console.log("✅ Redis connected");
+  });
+
+  redis.on("error", (err) => {
+    console.error("❌ Redis error:", err);
+  });
+
+  redis.on("ready", () => {
+    console.log("✅ Redis is ready to use");
+  });
+
   app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);
   });

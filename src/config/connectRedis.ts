@@ -1,4 +1,4 @@
-import Redis from "ioredis";
+import { Redis } from "ioredis";
 
 console.log(
   "🔍 REDIS_URL from env:",
