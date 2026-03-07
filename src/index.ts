@@ -9,6 +9,7 @@ import authRoutes from "./routes/authRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
 import oauthRoute from "./routes/oauthRoute.js";
 import refreshTokenRoute from "./routes/refreshTokenRoute.js";
+import twoFactorsRoutes from "./routes/2FARoutes.js";
 import redis from "./config/connectRedis.js";
 
 const app = express();
@@ -21,7 +22,7 @@ app.use(passport.initialize());
 app.use("/api/auth", authRoutes, oauthRoute);
 app.use("/api/task", taskRoutes);
 app.use("/api/token", refreshTokenRoute);
-
+app.use("/api/2fa", twoFactorsRoutes);
 app.get("/", (req: Request, res: Response) => {
   res.json("connect to backend");
 });

@@ -84,13 +84,19 @@ const login = asyncHandler(
       throw new ApiError(400, "user not found");
     }
 
+    if (!user.password) {
+      throw new ApiError(
+        400,
+        "Please use the original sign-in method for this account",
+      );
+    }
+
     //compare password
     const match = await user.comparePassword(password);
     if (!match) {
-      throw new ApiError(401, "invalid credential");
+      throw new ApiError(401, "Wrong password");
     }
 
-    //generate session id
     //generate session id
     const sessionId = await createSession({
       userId: user._id,

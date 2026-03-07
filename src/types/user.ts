@@ -25,7 +25,7 @@ export interface IUser {
   //2FA
   twoFactorSecret?: string | undefined;
   twoFactorEnabled: boolean;
-  backupCodes?: [] | undefined;
+  backupCodes?: string[] | undefined;
 
   //time stamp
   createdAt: Date;
