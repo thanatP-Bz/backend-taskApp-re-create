@@ -7,7 +7,7 @@ import { ApiError } from "../utils/error/ApiError.js";
 import type { IUserDocument } from "../types/user.js";
 import { hashedBackupCode } from "../utils/2FA/backUpCodes.js";
 import { generateBackUpCodes } from "../utils/token/crypto/2FACodes.js";
-import { verify2FATokenService } from "../utils/2FA/verified2FATOken.js";
+import { verify2FATokenService } from "../utils/2FA/2FAService.js";
 import { createSession } from "./redisSessionController.js";
 import { generateAccessToken } from "../utils/token/JWT/accessToken.js";
 import { generateRefreshToken } from "../utils/token/JWT/refreshToken.js";
@@ -187,5 +187,29 @@ export const disable2FAController = expressAsyncHandler(
     res
       .status(200)
       .json({ message: "2FA is disabled", twoFactorEnabled: false });
+  },
+);
+
+//regeneate backup code
+export const regenerateBackupCodesController = expressAsyncHandler(
+  async (req: Request, res: Response) => {
+    const authenticatedUser = req.user as IUserDocument;
+    const user = await User.findById(authenticatedUser._id);
+
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+
+    if (!user.twoFactorEnabled) {
+      throw new ApiError(400, "2FA is not enabled");
+    }
+
+    const backupCodes = generateBackUpCodes();
+    user.backupCodes = backupCodes.map((code) => hashedBackupCode(code));
+    await user.save();
+
+    res
+      .status(200)
+      .json({ message: "Backup codes regenerated successfully!", backupCodes });
   },
 );

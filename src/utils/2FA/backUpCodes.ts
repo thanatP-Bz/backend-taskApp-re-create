@@ -14,7 +14,10 @@ const verifyBackupCode = async (
   const hashedCode = hashedBackupCode(code);
 
   if (!user.backupCodes || user.backupCodes.length === 0) {
-    throw new ApiError(400, "No backup code Available");
+    throw new ApiError(
+      400,
+      "No backup codes available. Please use your authenticator app.",
+    );
   }
 
   const index = user.backupCodes?.findIndex(
@@ -28,6 +31,13 @@ const verifyBackupCode = async (
   //remove use backup code
   user.backupCodes.splice(index, 1);
   await user.save();
+
+  if (user.backupCodes.length <= 2) {
+    // You could return this warning in the login response
+    console.warn(
+      `User ${user.email} has only ${user.backupCodes.length} backup codes left`,
+    );
+  }
 
   return true;
 };
