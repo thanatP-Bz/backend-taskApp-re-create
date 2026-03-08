@@ -5,18 +5,17 @@ import type { Request, Response } from "express";
 import { User } from "../models/userModel.js";
 import { ApiError } from "../utils/error/ApiError.js";
 import type { IUserDocument } from "../types/user.js";
-import {
-  hashedBackupCode,
-  verifyBackupCode,
-} from "../utils/2FA/backUpCodes.js";
+import { hashedBackupCode } from "../utils/2FA/backUpCodes.js";
 import { generateBackUpCodes } from "../utils/token/crypto/2FACodes.js";
+import { verify2FATokenService } from "../utils/2FA/verified2FATOken.js";
+import { createSession } from "./redisSessionController.js";
+import { generateAccessToken } from "../utils/token/JWT/accessToken.js";
+import { generateRefreshToken } from "../utils/token/JWT/refreshToken.js";
 
 //enable 2 Fa
 export const enable2FA = expressAsyncHandler(
   async (req: Request, res: Response) => {
-    const { email } = req.body;
-
-    const user = await User.findEmail(email);
+    const user = req.user as IUserDocument;
 
     if (!user) {
       throw new ApiError(404, "User not found");
@@ -94,34 +93,99 @@ export const verify2FASetUp = expressAsyncHandler(
   },
 );
 
-//verify 2FA Token
-export const verify2FAToken = async (
-  req: Request,
-  res: Response,
-): Promise<boolean> => {
-  const user = req.user as IUserDocument;
+//verify2FA login
+export const verify2FALogin = expressAsyncHandler(
+  async (req: Request, res: Response) => {
+    const { userId, token } = req.body;
 
-  const { token } = req.body;
+    if (!userId) {
+      throw new ApiError(400, "User ID is required");
+    }
 
-  if (!user) {
-    throw new ApiError(404, "User not found");
-  }
+    if (!token) {
+      throw new ApiError(400, "2FA token is required");
+    }
 
-  if (!user.twoFactorEnabled || !user.twoFactorSecret) {
-    return verifyBackupCode(user as IUserDocument, token);
-  }
+    //check userId
+    const user = (await User.findById(userId)) as IUserDocument;
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
 
-  //verify the token
-  const verified = speakeasy.totp.verify({
-    secret: user.twoFactorSecret,
-    encoding: "base32",
-    token: token,
-    window: 2,
-  });
+    //verify 2FA token
+    const isValid = await verify2FATokenService(user, token);
+    if (!isValid) {
+      throw new ApiError(400, "Invalid 2FA token");
+    }
 
-  if (!verified) {
-    throw new ApiError(400, "token is invalid");
-  }
+    //generate session id
+    const sessionId = await createSession({
+      userId: user._id,
+      ipAddress: req.ip!,
+      userAgent: req.headers["user-agent"] || "unknown",
+    });
 
-  return true;
-};
+    //generate access token
+    const accessToken = generateAccessToken(user._id.toString());
+    const refreshToken = generateRefreshToken(user._id.toString());
+
+    user.refreshToken = refreshToken;
+    user.refreshTokenExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    user.save();
+
+    res.status(200).json({
+      message: "login successfully!",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        twoFactorEnabled: true,
+      },
+      sessionId,
+      accessToken,
+      refreshToken,
+    });
+  },
+);
+
+//disable 2FA
+export const disable2FAController = expressAsyncHandler(
+  async (req: Request, res: Response) => {
+    const authenticatedUser = req.user as IUserDocument;
+    const user = await User.findById(authenticatedUser._id).select("+password");
+    const { password } = req.body;
+
+    if (!password) {
+      throw new ApiError(401, "Password is required");
+    }
+
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+
+    // Check if user has a password (not OAuth user)
+    if (!user.password) {
+      throw new ApiError(
+        400,
+        "Cannot verify password. This account uses OAuth login.",
+      );
+    }
+
+    //check password match
+    const match = await user.comparePassword(password);
+
+    if (!match) {
+      throw new ApiError(400, "Incorrect password");
+    }
+
+    //disable 2FA and clean up all 2FA data
+    user.twoFactorEnabled = false;
+    user.twoFactorSecret = undefined;
+    user.backupCodes = [];
+    await user.save();
+
+    res
+      .status(200)
+      .json({ message: "2FA is disabled", twoFactorEnabled: false });
+  },
+);

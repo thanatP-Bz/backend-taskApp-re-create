@@ -104,20 +104,28 @@ const login = asyncHandler(
       userAgent: req.headers["user-agent"] || "unknown",
     });
 
+    if (user.twoFactorEnabled) {
+      res.status(200).json({
+        requires2FA: true,
+        message: "Please enter your 2FA code",
+        userId: user._id.toString(),
+        sessionId, // ← Include this so they can use it for the 2FA verification
+      });
+      return; // ← Exit here!
+    }
+
     //generate access token
     const accessToken = generateAccessToken(user._id.toString());
     const refreshToken = generateRefreshToken(user._id.toString());
 
     user.refreshToken = refreshToken;
-    user.refreshTokenExpires = user.refreshTokenExpires = new Date(
-      Date.now() + 7 * 24 * 60 * 60 * 1000,
-    );
+    user.refreshTokenExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     user.save();
 
     res.status(200).json({
+      message: "login successfully!",
       user: user.name,
       email: user.email,
-      message: "login successfully!",
       accessToken,
       refreshToken,
       sessionId,
