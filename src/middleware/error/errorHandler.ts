@@ -13,10 +13,18 @@ export const errorHandler = (
   const statusCode = err.statusCode || 500;
   const message = err.message || "something went wrong";
 
-  res.status(statusCode).json({
-    status: false,
-    message,
-    //this will help track the source of error file
-    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
-  });
+  // Add rate limit info if available
+  const remaining = req.rateLimit?.remaining;
+  const limit = req.rateLimit?.limit;
+
+  const isAuthError = statusCode === 400 || statusCode === 401;
+
+  const rateLimitMessage =
+    remaining !== undefined && isAuthError
+      ? remaining === 0
+        ? `${message} This is your last attempt before being blocked!`
+        : `${message} ${remaining} of ${limit} attempts remaining.`
+      : message;
+
+  res.status(statusCode).json({ status: false, message: rateLimitMessage });
 };

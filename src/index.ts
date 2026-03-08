@@ -26,7 +26,25 @@ app.use("/api/2fa", twoFactorsRoutes);
 app.get("/", (req: Request, res: Response) => {
   res.json("connect to backend");
 });
+// Add this before your error handler
+app.get("/debug/ratelimit/:action", async (req: Request, res: Response) => {
+  const ip = req.ip || req.socket.remoteAddress || "unknown";
+  const action = req.params.action;
+  const key = `ratelimit:${action}:${ip}`;
 
+  const attempts = await redis.get(key);
+  const ttl = await redis.ttl(key);
+
+  res.json({
+    action,
+    ip,
+    key,
+    currentAttempts: attempts ? parseInt(attempts) : 0,
+    ttl,
+    expiresIn: ttl > 0 ? `${ttl} seconds` : "expired or not set",
+    maxAllowed: action === "login" ? 5 : action === "register" ? 3 : "unknown",
+  });
+});
 //error handler
 app.use(errorHandler);
 

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authenticate } from "../middleware/authentication/authMiddleware.js";
+import { rateLimiter } from "../middleware/rate-limit/rate-limiter.js";
 import {
   enable2FA,
   verify2FASetUp,
@@ -21,6 +22,6 @@ router.post(
 );
 
 // Public route (no authentication needed)
-router.post("/verify-2fa-login", verify2FALogin); // ← No middleware!
+router.post("/verify-2fa-login", rateLimiter("verify2FA"), verify2FALogin); // ← No middleware!
 
 export default router;
