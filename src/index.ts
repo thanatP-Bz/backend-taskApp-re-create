@@ -1,6 +1,7 @@
 import dns from "dns";
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 import "dotenv/config";
+import cors from "cors";
 import passport from "./config/passport.js";
 import express, { type Request, type Response } from "express";
 import connectDB from "./config/connectDB.js";
@@ -14,6 +15,7 @@ import redis from "./config/connectRedis.js";
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 //passport.js
 app.use(passport.initialize());

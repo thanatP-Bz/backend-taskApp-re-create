@@ -124,8 +124,10 @@ const login = asyncHandler(
 
     res.status(200).json({
       message: "login successfully!",
-      user: user.name,
-      email: user.email,
+      user: {
+        name: user.name,
+        email: user.email,
+      },
       accessToken,
       refreshToken,
       sessionId,

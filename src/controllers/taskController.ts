@@ -26,7 +26,7 @@ const getTask = asyncHandler(
     const user = req.user as IUserDocument;
     const tasks = await Task.find({ user: user!._id });
 
-    res.status(200).json(tasks);
+    res.status(200).json({ tasks });
   },
 );
 
