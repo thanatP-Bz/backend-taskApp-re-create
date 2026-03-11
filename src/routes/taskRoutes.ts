@@ -3,7 +3,7 @@ import {
   getTask,
   createTask,
   getSingleTask,
-  editTask,
+  updateTask,
   deleteTask,
 } from "../controllers/taskController.js";
 import { authenticate } from "../middleware/authentication/authMiddleware.js";
@@ -15,7 +15,7 @@ router.use(authenticate);
 router.post("/", createTask);
 router.get("/", getTask);
 router.get("/:id", getSingleTask);
-router.patch("/:id", editTask);
+router.patch("/:id", updateTask);
 router.delete("/:id", deleteTask);
 
 export default router;

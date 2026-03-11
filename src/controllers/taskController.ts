@@ -37,11 +37,11 @@ const getSingleTask = asyncHandler(
 
     const task = await Task.findById({ _id: id, userId });
 
-    res.status(200).json(task);
+    res.status(200).json({ task });
   },
 );
 
-const editTask = asyncHandler(
+const updateTask = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const user = req.user as IUserDocument;
@@ -53,13 +53,14 @@ const editTask = asyncHandler(
     }
 
     const { title, description, isCompleted } = req.body;
-    if (title !== title) task.title = title;
-    if (description !== task.description) task.description = description;
-    if (isCompleted !== task.isCompleted) task.isCompleted = isCompleted;
+
+    if (title !== undefined) task.title = title;
+    if (description !== undefined) task.description = description;
+    if (isCompleted !== undefined) task.isCompleted = isCompleted;
 
     const updatedTask = await task.save();
 
-    res.status(200).json(updatedTask);
+    res.status(200).json({ updatedTask, message: "Update task successfully!" });
   },
 );
 
@@ -81,4 +82,4 @@ const deleteTask = asyncHandler(
   },
 );
 
-export { getTask, createTask, getSingleTask, editTask, deleteTask };
+export { getTask, createTask, getSingleTask, updateTask, deleteTask };
