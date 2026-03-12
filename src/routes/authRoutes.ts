@@ -24,7 +24,7 @@ router.post("/resend-email", resendEmail);
 router.post("/forget-password", rateLimiter("forgetPassword"), forgetPassword);
 router.post("/reset-password", resetPassword);
 router.patch("/change-password", authenticate, changePassword);
-router.post("/logout", logout);
+router.post("/logout", authenticate, logout);
 
 //oauth token route
 router.post("/google", googleCallback);

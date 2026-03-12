@@ -17,6 +17,8 @@ import {
 import bcrypt from "bcrypt";
 import { generateRefreshToken } from "../utils/token/JWT/refreshToken.js";
 import { createSession } from "./redisSessionController.js";
+import redis from "../config/connectRedis.js";
+import type { IUserDocument } from "../types/user.js";
 
 const register = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -265,6 +267,21 @@ const changePassword = asyncHandler(
 
 const logout = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user as IUserDocument | undefined;
+
+    // Only clean up if user is authenticated
+    if (user) {
+      // Clear all sessions for this user
+      const sessionKeys = await redis.keys(`session:*:${user._id}`);
+      if (sessionKeys.length > 0) {
+        await redis.del(...sessionKeys);
+      }
+
+      // Clear refresh token
+      user.refreshToken = null;
+      await user.save();
+    }
+
     res.status(200).json({ message: "Logged out successfully" });
   },
 );
