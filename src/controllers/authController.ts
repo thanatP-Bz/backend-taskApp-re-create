@@ -86,11 +86,8 @@ const login = asyncHandler(
       throw new ApiError(400, "user not found");
     }
 
-    if (!user.password) {
-      throw new ApiError(
-        400,
-        "Please use the original sign-in method for this account",
-      );
+    if (!user.isVerified) {
+      throw new ApiError(403, "Please verify your email before logging in");
     }
 
     //compare password
