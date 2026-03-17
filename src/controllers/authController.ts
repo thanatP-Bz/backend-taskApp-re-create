@@ -196,11 +196,11 @@ const resetPassword = asyncHandler(
       throw new ApiError(400, "New password is required");
     }
 
-    const updatedUpdatedResetToken = hashedUpdateResetToken(token);
+    const updatedResetToken = hashedUpdateResetToken(token);
 
     // Find user with valid token
     const user = await User.findOne({
-      resetPasswordToken: updatedUpdatedResetToken,
+      resetPasswordToken: updatedResetToken,
       resetPasswordExpires: { $gt: Date.now() },
     });
 
@@ -234,9 +234,11 @@ const resetPassword = asyncHandler(
 
 const changePassword = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { email, oldPassword, newPassword } = req.body;
+    const { oldPassword, newPassword } = req.body;
+    const reqUser = req.user as IUserDocument;
 
-    const user = await User.findEmail(email);
+    const user = await User.findById(reqUser._id);
+    if (!user) throw new ApiError(404, "User not found");
 
     if (!user) {
       throw new ApiError(404, "User not Found");

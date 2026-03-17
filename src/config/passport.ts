@@ -15,22 +15,31 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        // Check if user already exists in database
-        let user = await User.findOne({ googleId: profile.id });
+        const email = profile.emails?.[0]?.value;
 
+        // 1. Check by googleId first
+        let user = await User.findOne({ googleId: profile.id });
         if (user) {
-          // User exists, return user
+          return done(null, user); // existing Google user
+        }
+
+        // 2. Check by email — user registered with email/password before
+        user = await User.findOne({ email });
+        if (user) {
+          // link googleId to existing account
+          user.googleId = profile.id;
+          user.authProvider = "google";
+          await user.save();
           return done(null, user);
         }
 
-        // User doesn't exist, create new user
+        // 3. Brand new user — create
         user = await User.create({
           googleId: profile.id,
-          email: profile.emails?.[0]?.value,
+          email,
           name: profile.displayName,
           authProvider: "google",
           isVerified: true,
-          // Add any other fields you need from the profile
         });
 
         return done(null, user);

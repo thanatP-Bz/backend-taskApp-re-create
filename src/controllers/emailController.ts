@@ -56,22 +56,22 @@ const resendEmail = asyncHandler(
     }
 
     // Cooldown check - prevent spam
-    if (
+    /*     if (
       user.verificationTokenExpires &&
       user.verificationTokenExpires.getTime() > Date.now()
     ) {
       const minutesLeft = Math.ceil(
-        (user.verificationTokenExpires.getTime() - Date.now()) / 60000,
+        (user.verificationTokenExpires.getTime() - Date.now()) / 60000, // ✅ divide by 60000
       );
       throw new ApiError(
         429,
         `Please wait ${minutesLeft} minute(s) before requesting a new verification email`,
       );
-    }
+    } */
 
     // Generate new token
     const verificationToken = generateVerificationToken();
-    const verificationTokenExpires = new Date(Date.now() + 1 * 60 * 1000);
+    const verificationTokenExpires = new Date(Date.now() + 10 * 60 * 1000);
 
     user.verificationToken = verificationToken;
     user.verificationTokenExpires = verificationTokenExpires;

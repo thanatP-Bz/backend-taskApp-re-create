@@ -10,6 +10,17 @@ const createTask = asyncHandler(
     const { title, description, isCompleted } = req.body;
     const user = req.user as IUserDocument;
 
+    // ✅ Validation
+    if (!title || !title.trim()) {
+      res.status(400).json({ message: "Title is required" });
+      return;
+    }
+
+    if (title.trim().length > 100) {
+      res.status(400).json({ message: "Title must be 100 characters or less" });
+      return;
+    }
+
     const task = await Task.create({
       title,
       description,

@@ -29,7 +29,7 @@ export const googleCallback = async (req: Request, res: Response) => {
       userAgent: req.headers["user-agent"] || "unknown",
     });
 
-    console.log("test");
+    /*    console.log("test");
 
     return res.json({
       success: true,
@@ -43,10 +43,10 @@ export const googleCallback = async (req: Request, res: Response) => {
         isVerified: user.isVerified,
         authProvider: user.authProvider,
       },
-    });
+    }); */
 
     // Encode user data
-    /*     const userData = encodeURIComponent(
+    const userData = encodeURIComponent(
       JSON.stringify({
         _id: user._id,
         name: user.name,
@@ -54,12 +54,12 @@ export const googleCallback = async (req: Request, res: Response) => {
         isVerified: user.isVerified,
         authProvider: user.authProvider,
       }),
-    ); */
+    );
 
     // ✅ Simple redirect with all data in URL
-    /*  const redirectUrl = `${process.env.FRONTEND_URL}/oauth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}&sessionId=${session}&user=${userData}`;
+    const redirectUrl = `${process.env.FRONTEND_URL}/oauth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}&sessionId=${session}&user=${userData}`;
 
-    res.redirect(redirectUrl); */
+    res.redirect(redirectUrl);
   } catch (error) {
     res.redirect(`${process.env.FRONTEND_URL}/login?error=server_error`);
   }
