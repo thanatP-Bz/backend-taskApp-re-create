@@ -17,7 +17,7 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "https://frontend-taskapp-re-create.onrender.com/",
+    origin: "https://frontend-taskapp-re-create.onrender.com",
     credentials: true,
   }),
 );
